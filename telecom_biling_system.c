@@ -195,6 +195,36 @@ void view_records(void)
 
 // }
 
+void view_payments(void)
+{
+
+    char line_buffer[100];
+    char loc_name[50];
+    printf("Enter user name: ");
+    fflush(stdin);
+    // scanf("%s",loc_name); 
+    size_t max_line_size = 200;
+
+    // remove \n from input name
+    size_t name_len = strlen(loc_name);
+    loc_name[name_len-1]= '\0';
+
+
+    int id = generate_id(loc_name);
+    FILE* db_fptr= fopen("database_db.txt","r");
+
+    while( getline((char**)&line_buffer,&max_line_size,db_fptr) != -1)
+    {
+        if( get_id_from_line(line_buffer) == id )
+        {
+            printf("%s\n",line_buffer);
+        }
+    }
+
+    printf("Record does not exist\n");
+
+    return;
+}
 
 static int generate_id(const char*  name_ptr)
 {
@@ -209,7 +239,7 @@ static int get_id_from_line(char* LineBuff)
 {
     int local_id =0;
     // begin tokenizing sentence
-    char *tokenPtr = strtok(LineBuff,"-"); 
+    char *tokenPtr = strtok(LineBuff,","); 
 	// while (tokenPtr != NULL)
 	// {
 	// 	tokenPtr = strtok(NULL, " "); 

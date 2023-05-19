@@ -43,7 +43,10 @@ int main()
                 // modify_record();
                 break;
             case 4:
+            {
+                view_payments();
                 break;
+            }
             case 5:
                 printf("Shutting down...\n");
                 return 0;

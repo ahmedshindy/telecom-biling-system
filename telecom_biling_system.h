@@ -42,6 +42,8 @@ int store_new_record(record_t* ptr_record_entity);
 // void view_records(const FILE* dbPtr )
 void view_records(void);
 void modify_record();
+void view_payments(void);
+
 
 
 #endif
