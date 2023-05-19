@@ -7,11 +7,12 @@
 
 
 
-
+record_t entity;
 char char_temp;
 int choice = 0;
 int main()
 {
+    int Err_state= NOT_SUCCEEDED;
     /* Show Menu at Startup */
     show_menu();
     while (1)
@@ -25,16 +26,21 @@ int main()
         switch (choice)
         {
             case 1:
-                read_record();
-                store_new_record();
+            {
+                Err_state= read_record(&entity);
+                if(Err_state == SUCCEEDED)
+                {
+                    store_new_record(&entity);
+                }
                 break;
+            }
             case 2:
                 /*Show available records */
                 view_records();
                 break;
             case 3:
                 // modify record full data: name, phone, amount of payment
-                modify_record();
+                // modify_record();
                 break;
             case 4:
                 break;

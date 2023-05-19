@@ -5,14 +5,8 @@
 #include "telecom_biling_system.h"
 
 #define MAZ_LINE_SIZE   100
-
-
-/*struct of data */
-char* name ;
 size_t name_size = 30;
-char* phone_number;
-size_t phone_number_size;
-float amount;
+size_t phone_number_size =30;
 
 
 static int generate_id(const char* name_ptr);
@@ -25,7 +19,7 @@ FILE *fptr;
 
 
 /* this function lists the available options */
-void show_menu(void)
+int show_menu(void)
 {
     // loop on menu struct (optional)
 
@@ -36,58 +30,61 @@ void show_menu(void)
     3- Modify Record \n \
     4- View Payment\n \
     5- Exit\n");
-    return;
+    return SUCCEEDED;
 }
 
 
-/*
-@brief : This function reads new record, name , phone , and amount to pay;
-*/
-void read_record(void)
+// This function reads new record, name , phone , and amount to pay
+int read_record(record_t * ptr_record_entity)
 {
 
-   // static char* new_name = (char*) malloc(name_size * sizeof(char));
-    name = (char*) malloc(name_size * sizeof(char));
-    phone_number = (char*) malloc(phone_number_size * sizeof(char));
-
+    char* name = (char*) malloc(name_size * sizeof(char));
+    char* phone_number = (char*) malloc(phone_number_size * sizeof(char));
+    double amount;
     /* get name, id, phone number, amount_to_pay */
     printf("Enter Name: ");
+    fflush(stdin);
     getline(&name,&name_size, stdin);
     printf("Enter phone number: ");
+    fflush(stdin);
     getline(&phone_number,&phone_number_size, stdin);
     printf("Enter amount: ");
-    scanf("%f",&amount);
+    fflush(stdin);
+    scanf("%lf",&amount);
+
+    /*remove newline char from name and phone number */
+    size_t name_len= strlen(name);
+    name[name_len-1]= '\0';
+    size_t phone_len = strlen(phone_number);
+    phone_number[phone_len-1]= '\0';
+
+    strncpy(ptr_record_entity->name,name,name_len);
+    strncpy(ptr_record_entity->phone_number,phone_number,phone_len);
+    ptr_record_entity->amount= amount;
+
+    ptr_record_entity->name[name_len]='\0';
+    ptr_record_entity->phone_number[phone_len]='\0';
+
+    free(name);
+    free(phone_number);
+    return SUCCEEDED;
 }
 
-void store_new_record(void)
+int store_new_record(record_t* ptr_record_entity)
 {
     int ID=0;
-    // store entity 
-    fptr = fopen("database.txt","a+");
-    if(fptr == NULL)
+    FILE* db_fptr = fopen("database_db.txt","a+");
+    if(db_fptr == NULL)
     {
         printf("Error!");   
         exit(1);             
     }
-    size_t record_name_size = strlen(name);
-    size_t record_phone_size = strlen(phone_number);
-
-    /* Remove the new line charachter (\n) from the name */
-    name[record_name_size -1] = '\0';
-    /*generate id from user name, not including new line char */
-    ID =generate_id(name);
-
-
-    /* Remove the new line charachter (\n) from the phonenumber */
-    phone_number[record_phone_size -1] = '\0';
-
-    //do optimization & write entity to file 
-    fprintf(fptr,"%d,%s,%s,%0.4f\n",ID,name, phone_number,amount);
-
-    free(name);
-    free(phone_number);
-    amount = 0.0;
-    fclose(fptr);
+    /* generate id from user name */
+    ID =generate_id(ptr_record_entity->name);
+    // write entity to csv file 
+    fprintf(db_fptr,"%d,%s,%s,%0.4lf\n",ID,(char*)ptr_record_entity->name,
+             (char*)ptr_record_entity->phone_number,ptr_record_entity->amount);
+    fclose(db_fptr);
 }
 
 
@@ -96,8 +93,8 @@ void view_records(void)
 {
     char* line;
     ssize_t chars_read =0;
-    size_t len = (name_size + phone_number_size + 50);
-    fptr = fopen("database.txt","r");
+    size_t len = 150;
+    fptr = fopen("database_db.txt","r");
     if(fptr == NULL)
     {
         printf("No database found\n");
@@ -116,87 +113,87 @@ void view_records(void)
 }
 
 
-/* This function modifies the amount of payment of a specific user */
-void modify_record()
-{
+// /* This function modifies the amount of payment of a specific user */
+// void modify_record()
+// {
 
-    char * new_name;
-    char* new_number;
-    float new_amount;
-    char * line_buffer= NULL;
-    ssize_t returned_line_size=0;
-    size_t RecordId=0;
-    size_t LineId = 0;
-    size_t line_counter= 1;
-    size_t max_line_size =100;
-    char temp_char;
+//     char * new_name;
+//     char* new_number;
+//     float new_amount;
+//     char * line_buffer= NULL;
+//     ssize_t returned_line_size=0;
+//     size_t RecordId=0;
+//     size_t LineId = 0;
+//     size_t line_counter= 1;
+//     size_t max_line_size =100;
+//     char temp_char;
 
-    name = (char*) malloc(name_size * sizeof(char));
-    FILE* temp_fp = fopen("deatabase_temp.txt","w");
-    FILE* fp = fopen("database.txt","r");
-    if (  (!fp) || (!temp_fp) )
-    {
-        fprintf(stderr, "Error opening file database file\n");
-        return ;
-    }
-
-
-    // read line number "same as record ID "
-    printf("Enter record Name: ");
-    getline(&name,&name_size, stdin);
-
-    size_t record_name_size = strlen(name);
-    name[record_name_size -2] = '\0';
-    RecordId = generate_id(name);
+//     name = (char*) malloc(name_size * sizeof(char));
+//     FILE* temp_fp = fopen("deatabase_temp.txt","w");
+//     FILE* fp = fopen("database.txt","r");
+//     if (  (!fp) || (!temp_fp) )
+//     {
+//         fprintf(stderr, "Error opening file database file\n");
+//         return ;
+//     }
 
 
-    printf("generated id is: %ld\n",RecordId);
-    return ;
+//     // read line number "same as record ID "
+//     printf("Enter record Name: ");
+//     getline(&name,&name_size, stdin);
 
-    // while( (RecordId >= records_counter) || (RecordId <0)) 
-    // {
-    //     printf("Id not found, try again\n\
-    //     Enter record Id: ");
-    //     getline(&name,&name_size, stdin);
-    //         /*Check if user wants to exit this option*/
-    //         if(RecordId == 0)
-    //         {
-    //             return;
-    //         }
-    // }
-
-    while(1)
-    {
-        // read the file line by line
-        returned_line_size = getline(&line_buffer,&max_line_size,fp);
-        LineId = get_id_from_line(line_buffer);
-        // modify condition
-        if(LineId== RecordId)
-        {
-            // modify this line, then write it 
-            printf("Enter New name: ");
+//     size_t record_name_size = strlen(name);
+//     name[record_name_size -2] = '\0';
+//     RecordId = generate_id(name);
 
 
-        }
-        else if (feof(fp))
-        {
-            break;
-        }
-        else
-        {
-            // write line_buffer to the temp_file
-            fputs(line_buffer,temp_fp);
-        }
-        // exit condition 
-    }
+//     printf("generated id is: %ld\n",RecordId);
+//     return ;
 
-    fclose(fp);
-    fclose(temp_fp);
+//     // while( (RecordId >= records_counter) || (RecordId <0)) 
+//     // {
+//     //     printf("Id not found, try again\n\
+//     //     Enter record Id: ");
+//     //     getline(&name,&name_size, stdin);
+//     //         /*Check if user wants to exit this option*/
+//     //         if(RecordId == 0)
+//     //         {
+//     //             return;
+//     //         }
+//     // }
 
-    remove("database.txt"); // use variables
-    rename("database_temp.txt","database.txt");
+//     while(1)
+//     {
+//         // read the file line by line
+//         returned_line_size = getline(&line_buffer,&max_line_size,fp);
+//         LineId = get_id_from_line(line_buffer);
+//         // modify condition
+//         if(LineId== RecordId)
+//         {
+//             // modify this line, then write it 
+//             printf("Enter New name: ");
 
-}
+
+//         }
+//         else if (feof(fp))
+//         {
+//             break;
+//         }
+//         else
+//         {
+//             // write line_buffer to the temp_file
+//             fputs(line_buffer,temp_fp);
+//         }
+//         // exit condition 
+//     }
+
+//     fclose(fp);
+//     fclose(temp_fp);
+
+//     remove("database.txt"); // use variables
+//     rename("database_temp.txt","database.txt");
+
+// }
 
 
 static int generate_id(const char*  name_ptr)

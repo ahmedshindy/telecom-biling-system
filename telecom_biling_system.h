@@ -19,11 +19,26 @@
 // }BilingSystem_t;
 
 
+#define SUCCEEDED   0
+#define NOT_SUCCEEDED   1
+
+
+/*struct of data */
+typedef struct record
+{
+char name[50] ;
+char phone_number[50];
+float amount;
+}record_t;
+
+
 
 /*functions */
-void show_menu(void);
-void read_record(void);
-void store_new_record(void);
+int show_menu(void);
+// void read_record(void);
+int read_record(record_t* record_entity);
+
+int store_new_record(record_t* ptr_record_entity);
 // void view_records(const FILE* dbPtr )
 void view_records(void);
 void modify_record();
