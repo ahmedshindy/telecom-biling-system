@@ -1,6 +1,6 @@
+# Compiler 
 CC := gcc 
 CC_FLAGS:= -g 
-
 
 Telecom_biling_system.elf:main.o  telecom_biling_system.o
 	$(CC) $(CC_FLAGS) $^ -o $@

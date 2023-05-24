@@ -41,9 +41,10 @@ int read_record(record_t* record_entity);
 int store_new_record(record_t* ptr_record_entity);
 // void view_records(const FILE* dbPtr )
 void view_records(void);
-void modify_record();
+void modify_record(size_t Record_ID);
 void view_payments(void);
-
+int generate_id(const char*  name_ptr);
+int get_id_from_line( char* LineBuff);
 
 
 #endif

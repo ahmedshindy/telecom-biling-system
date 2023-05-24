@@ -39,8 +39,11 @@ int main()
                 view_records();
                 break;
             case 3:
-                // modify record full data: name, phone, amount of payment
-                // modify_record();
+                // modify record one or full data: name, phone, amount of payment
+                printf("Enter name you want to change it data:-\n");
+                Err_state = read_record(&entity);
+                size_t RecordID = generate_id(entity.name);
+                modify_record(RecordID);
                 break;
             case 4:
             {
@@ -55,7 +58,7 @@ int main()
                 printf("Invalid Option, enter valid option\n");
                 break;
         }
-        printf("Enter Another Option: ");
+        printf("Enter Another Option:- \n");
         choice = 5;
     }
 
